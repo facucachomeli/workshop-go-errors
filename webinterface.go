@@ -9,7 +9,7 @@ import (
 func get() error {
 	_, err := findDomainEntity()
 	if err != nil {
-		return NotFoundError
+		return errors.New(fmt.Sprintf(notFoundMessage+": %s", err))
 	}
 
 	return nil
@@ -22,7 +22,7 @@ func getWithTrace() error {
 
 func getWithErrorType() error {
 	_, err := findDomainEntityWithErrorType()
-	return NewNotFound(err)
+	return NotFound{TraceableError{errors.Wrap(err, notFoundMessage)}}
 }
 
 const notFoundMessage = "404 - Not Found"
@@ -30,21 +30,5 @@ const notFoundMessage = "404 - Not Found"
 var NotFoundError = fmt.Errorf(notFoundMessage)
 
 type NotFound struct {
-	cause error
-}
-
-func NewNotFound(e error) error {
-	return NotFound{errors.Wrap(e, notFoundMessage)}
-}
-
-func (err NotFound) Error() string {
-	return err.cause.Error()
-}
-
-func (err NotFound) Cause() error {
-	return err.cause
-}
-
-func (err NotFound) Format(s fmt.State, verb rune) {
-	Format(err, s, verb)
+	TraceableError
 }

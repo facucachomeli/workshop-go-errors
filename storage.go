@@ -7,7 +7,7 @@ import (
 )
 
 func find() (interface{}, error) {
-	return nil, DocumentNotFoundError
+	return nil, errors.New(documentNotFoundMessage)
 }
 
 func findWithTrace() (interface{}, error) {
@@ -15,7 +15,7 @@ func findWithTrace() (interface{}, error) {
 }
 
 func findWithErrorType() (interface{}, error) {
-	return nil, NewDocumentNotFound()
+	return nil, DocumentNotFound{TraceableError{errors.New(documentNotFoundMessage)}}
 }
 
 const documentNotFoundMessage = "Document Not Found"
@@ -23,21 +23,5 @@ const documentNotFoundMessage = "Document Not Found"
 var DocumentNotFoundError = fmt.Errorf(documentNotFoundMessage)
 
 type DocumentNotFound struct {
-	innerError error
-}
-
-func NewDocumentNotFound() error {
-	return errors.New(documentNotFoundMessage)
-}
-
-func (err DocumentNotFound) Error() string {
-	return documentNotFoundMessage
-}
-
-func (err DocumentNotFound) Cause() error {
-	return err.innerError
-}
-
-func (err DocumentNotFound) Format(s fmt.State, verb rune) {
-	Format(err, s, verb)
+	TraceableError
 }
